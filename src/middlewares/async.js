@@ -15,7 +15,16 @@ export default function({ dispatch }) {
 
 		
 
-		console.log("We do have a promise:", action)
+		// Make sure the action's promise resolves
+		action.payload
+			.then(function(response) {
+				// Create new action with all the data from the action PLUS what we receive from the promise
+				// take everything in our current action and replace our payload with the promise response
+				const newAction = { ...action, payload: response }
+
+				// dispatch means send it through all the middlewares again
+				dispatch(newAction);
+			});
 	}
 }
 

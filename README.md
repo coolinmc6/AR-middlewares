@@ -143,10 +143,47 @@ export default function({ dispatch }) {
 - finish L56, start L57
 
 ## Lecture 57: Handling Promises
+- The goal is to write middleware that doesn't care about its order
+- The main parts about middleware:
 
+```js
+export default function({ dispatch }) {
+	return next => action => {
+		// if action doesn't have payload or payload doesn't have .then() property, send on
+		if(!action.payload || !action.payload.then) {
+			return next(action);
+		}
 
+		
 
+		// Make sure the action's promise resolves
+		action.payload
+			.then(function(response) {
+				// Create new action with all the data from the action PLUS what we receive from the promise
+				// take everything in our current action and replace our payload with the promise response
+				const newAction = { ...action, payload: response }
 
+				// dispatch means send it through all the middlewares again
+				dispatch(newAction);
+			});
+	}
+}
+```
+- In the main `src/index.js` file, there are three main lines:
+```js
+//index.js
+import { createStore, applyMiddleware } from 'redux';
+
+// other import statements
+
+import Async from './middlewares/async';
+
+const createStoreWithMiddleware = applyMiddleware(Async)(createStore);
+```
+- I should check other projects but there is probably a way to import multiple middlewares, I just don't know
+how.
+- Notice that I don't have to write my actions or reducers any differently: no changes needed
+- 
 
 
 
